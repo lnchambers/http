@@ -30,5 +30,4 @@ loop do
   puts ["Wrote this response:", headers, output].join("\n")
   listener.close
   puts "\nResponse complete : Exiting."
-  start(count)
 end
