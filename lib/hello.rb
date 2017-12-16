@@ -1,14 +1,15 @@
 require "pry"
+require_relative "server"
 
 class Hello
 
   def initialize
     @count = 0
-    hello_world
   end
 
-  def hello_world
+  def hello_world(listener)
     @count += 1
-    print "<html><head></head><body>Hello world! (#{@count})</body></html>"
+    output = "<html><head></head><body>Hello world! (#{@count})</body></html>"
+    listener.print output
   end
 end
