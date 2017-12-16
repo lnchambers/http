@@ -1,7 +1,7 @@
 require "minitest/autorun"
 require "minitest/pride"
 require "pry"
-require "../lib/server"
+require_relative "../lib/server"
 
 class ServerTest < Minitest::Test
 
