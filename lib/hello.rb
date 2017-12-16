@@ -4,6 +4,7 @@ class Hello
 
   def initialize
     @count = 0
+    hello_world
   end
 
   def hello_world

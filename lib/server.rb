@@ -1,5 +1,6 @@
-require 'socket'
-require 'pry'
+require "socket"
+require "pry"
+require_relative "hello"
 
 class Server
 
@@ -21,10 +22,11 @@ class Server
       request = request_lines.inspect
       puts request
 
-      if request_lines.inspect[0].split(" ") == "/hello"
-        hello
+      if request_lines[0].split(" ")[1] == "/hello"
+        hello(listener)
+      elsif request_lines.inspect[0].split(" ")[1] == "/"
+        respond(request_lines, listener)
       else
-        request_lines.inspect[0].split(" ") == "/"
         respond(request_lines, listener)
       end
 
@@ -46,7 +48,7 @@ class Server
     response = "<pre>" + request_lines.join("\n") + "</pre>"
     @output = "<html><head></head><body><pre>
     Verb: POST
-    Path: /
+    Path: #{request_lines[0].split(" ")[1]}
     Protocol: HTTP/1.1
     Host: 127.0.0.1
     Port: 9292
@@ -55,8 +57,8 @@ class Server
     </pre></body></html>"
   end
 
-  def hello
+  def hello(listener)
     hello = Hello.new
-    hello.hello_word
+    listener.puts hello.hello_world
   end
 end
