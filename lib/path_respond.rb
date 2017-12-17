@@ -18,7 +18,12 @@ class PathRespond
   end
 
   def word_search(parameters)
-
+    dictionary = File.read("/usr/share/dict/words").split
+    if dictionary.include?(parameters.downcase)
+      "#{parameters.capitalize} is known to the Galactic Senate."
+    else
+      "#{parameters.capitalize} is unknown to the Jedi Council."
+    end
   end
 
 end

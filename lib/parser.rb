@@ -16,11 +16,7 @@ class Parser
     request[1].split[1]
   end
 
-  def all_parameters(request)
-    request[0].split[1]
-  end
-
-  def parameters(request)
-    request[0].split[1].split("?")[1].split("=")[0] unless request[0].split[1].split("?")[1].nil?
+  def params(request)
+    request[0].split[1].split("?")[1].split("=")[1] unless request[0].split[1].split("?")[1].nil?
   end
 end
