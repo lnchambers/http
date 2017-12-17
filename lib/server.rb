@@ -4,14 +4,10 @@ require_relative "path_respond"
 
 class Server
 
-  attr_reader :output,
-              :hello_count,
-              :all_count
+  attr_reader :output
 
   def initialize
     @output = ""
-    @hello_count = 0
-    @all_count = 0
   end
 
   def start
@@ -22,44 +18,40 @@ class Server
     loop do
       puts "Ready for a request"
       listener = tcp_server.accept
-      request_lines = []
+      request = []
       while line = listener.gets and !line.chomp.empty?
-        request_lines << line.chomp
+        request << line.chomp
       end
 
       puts "Got this request:"
       count += 1
-      puts request_lines.inspect
+      puts request.inspect
 
-      if parser.path(request_lines) == "/hello"
+      if parser.path(request) == "/hello"
         @output = path_respond.hello
-      elsif parser.path(request_lines) == "/datetime"
+      elsif parser.path(request) == "/datetime"
         @output = path_respond.datetime
-      elsif parser.path(request_lines) == "/shutdown"
+      elsif parser.path(request) == "/shutdown"
         @output = path_respond.shutdown(count)
         listener.puts headers
         listener.puts @output
-        puts ["Wrote this response:", headers, @output].join("\n")
-        listener.close
-        puts "\nResponse complete : Exiting."
+        close_server(listener)
+        close_server(listener)
+      elsif parser.path(request) == "/word_search"
+        parameters = parser.parameters
       else
-        respond(request_lines, listener)
+        respond(request, listener)
       end
-
-      listener.puts headers
-      listener.puts @output
-      puts ["Wrote this response:", headers, @output].join("\n")
-      listener.close
-      puts "\nResponse complete : Exiting."
+      close_server(listener)
     end
   end
 
-  def respond(request_lines, listener)
+  def respond(request, listener)
     puts "Sending response."
-    response = "<pre>" + request_lines.join("\n") + "</pre>"
+    response = "<pre>" + request.join("\n") + "</pre>"
     @output = "<html><head></head><body><pre>
     Verb: POST
-    Path: #{request_lines[0].split(" ")[1]}
+    Path: #{request[0].split(" ")[1]}
     Protocol: HTTP/1.1
     Host: 127.0.0.1
     Port: 9292
@@ -75,4 +67,13 @@ class Server
                "content-type: text/html; charset=iso-8859-1",
                "content-length: #{@output.length}\r\n\r\n"].join("\r\n")
   end
+
+  def close_server(listener)
+    listener.puts headers
+    listener.puts @output
+    puts ["Wrote this response:", headers, @output].join("\n")
+    listener.close
+    puts "\nResponse complete : Exiting."
+  end
+
 end

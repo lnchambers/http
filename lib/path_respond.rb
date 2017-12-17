@@ -1,12 +1,12 @@
 class PathRespond
 
   def initialize
-    @count = 0
+    @hello_count = -1
   end
 
   def hello
-    @count += 1
-    "Hello World! (#{@count})"
+    @hello_count += 1
+    "Hello World! (#{@hello_count})"
   end
 
   def datetime
@@ -15,6 +15,10 @@ class PathRespond
 
   def shutdown(count)
     "Total requests: #{count}"
+  end
+
+  def word_search(parameters)
+
   end
 
 end
