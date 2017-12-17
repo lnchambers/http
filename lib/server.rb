@@ -32,12 +32,16 @@ class Server
       puts request_lines.inspect
 
       if parser.path(request_lines) == "/hello"
-        path_respond.hello
+        @output = path_respond.hello
       elsif parser.path(request_lines) == "/datetime"
-        path_respond.datetime
+        @output = path_respond.datetime
       elsif parser.path(request_lines) == "/shutdown"
-        path_respond.shutdown(count)
-        return
+        @output = path_respond.shutdown(count)
+        listener.puts headers
+        listener.puts @output
+        puts ["Wrote this response:", headers, @output].join("\n")
+        listener.close
+        puts "\nResponse complete : Exiting."
       else
         respond(request_lines, listener)
       end

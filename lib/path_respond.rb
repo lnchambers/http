@@ -1,8 +1,12 @@
 class PathRespond
 
-  def hello(count)
-    count += 1
-    "Hello World! (#{count})"
+  def initialize
+    @count = 0
+  end
+
+  def hello
+    @count += 1
+    "Hello World! (#{@count})"
   end
 
   def datetime
