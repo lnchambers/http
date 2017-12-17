@@ -17,7 +17,7 @@ class Server
 
   def start
     loop do
-      tcp_server = TCPServer.new(9292)
+      tcp_server = TCPServer.new("localhost", 9292)
       puts "Ready for a request"
       listener = tcp_server.accept
       request_lines = []
@@ -28,16 +28,12 @@ class Server
       puts "Got this request:"
       @all_count += 1
       puts request_lines.inspect
-      headers = ["http/1.1 200 ok",
-                 "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
-                 "server: ruby",
-                 "content-type: text/html; charset=iso-8859-1",
-                 "content-length: #{@output.length}\r\n\r\n"].join("\r\n")
 
       if request_lines[0].split(" ")[1] == "/hello"
         hello(listener)
       elsif request_lines.inspect[0].split(" ")[1] == "/datetime"
-        listener.puts headers[1]
+        datetime = "#{Time.now.strftime("%H:%M%p on %A, %B %-m, %Y")}"
+        listener.puts datetime
       elsif request_lines.inspect[0].split(" ")[1] == "/shutdown"
         shutdown = "Total requests: #{@all_count}"
         listener.puts shutdown
@@ -46,10 +42,15 @@ class Server
         respond(request_lines, listener)
       end
 
+      headers = ["http/1.1 200 ok",
+                 "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+                 "server: ruby",
+                 "content-type: text/html; charset=iso-8859-1",
+                 "content-length: #{@output.length}\r\n\r\n"].join("\r\n")
       listener.puts headers
       listener.puts @output
       puts ["Wrote this response:", headers, @output].join("\n")
-      listener.close
+      # listener.close
       puts "\nResponse complete : Exiting."
     end
   end
