@@ -1,10 +1,9 @@
 require "socket"
+require "pry"
 require_relative "parser"
 require_relative "path_respond"
 
 class Server
-
-  attr_reader :output
 
   def initialize
     @output = ""
@@ -38,7 +37,8 @@ class Server
         close_server(listener)
         close_server(listener)
       elsif parser.path(request) == "/word_search"
-        parameters = parser.parameters
+        params = parser.params(request)
+        @output = path_respond.word_search(params)
       else
         respond(request, listener)
       end
