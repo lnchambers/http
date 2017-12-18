@@ -10,7 +10,7 @@ class Server
   end
 
   def start
-    tcp_server = TCPServer.open("localhost", 9292)
+    tcp_server = TCPServer.open(3000)
     parser = Parser.new
     path_respond = PathRespond.new
     count = 0
@@ -34,26 +34,28 @@ class Server
         @output = path_respond.shutdown(count)
         listener.puts headers
         listener.puts @output
-        close_server(listener)
-        close_server(listener)
+        render_view(listener)
+        render_view(listener)
       elsif parser.path(request) == "/word_search"
         params = parser.params(request)
         @output = path_respond.word_search(params)
+      elsif parser.path(request) == "/start_game"
+        game.start
       else
-        respond(request, listener)
+        respond(request, listener, parser)
       end
-      close_server(listener)
+      render_view(listener)
     end
   end
 
-  def respond(request, listener)
+  def respond(request, listener, parser)
     puts "Sending response."
     response = "<pre>" + request.join("\n") + "</pre>"
     @output = "<html><head></head><body><pre>
-    Verb: POST
-    Path: #{request[0].split(" ")[1]}
+    Verb: #{parser.verb(request)}
+    Path: #{parser.all_params(request)}
     Protocol: HTTP/1.1
-    Host: 127.0.0.1
+    Host: #{parser.host(request)}
     Port: 9292
     Origin: 127.0.0.1
     Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
@@ -68,7 +70,7 @@ class Server
                "content-length: #{@output.length}\r\n\r\n"].join("\r\n")
   end
 
-  def close_server(listener)
+  def render_view(listener)
     listener.puts headers
     listener.puts @output
     puts ["Wrote this response:", headers, @output].join("\n")

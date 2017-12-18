@@ -1,7 +1,7 @@
 class PathRespond
 
   def initialize
-    @hello_count = -1
+    @hello_count = 0
   end
 
   def hello

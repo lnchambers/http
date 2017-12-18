@@ -14,8 +14,8 @@ class PathRespondTest < Minitest::Test
   def test_hello
     path_respond = PathRespond.new
 
-    assert_equal "Hello World! (0)", path_respond.hello
     assert_equal "Hello World! (1)", path_respond.hello
+    assert_equal "Hello World! (2)", path_respond.hello
   end
 
   def test_datetime
