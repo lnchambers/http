@@ -10,7 +10,7 @@ class PathRespond
   end
 
   def datetime
-    "#{Time.now.strftime("%H:%M%p on %A, %B %-m, %Y")}"
+    "#{Time.now.strftime("%l:%M%p on %A, %B %-m, %Y")}"
   end
 
   def shutdown(count)
@@ -18,6 +18,14 @@ class PathRespond
   end
 
   def word_search(parameters)
+    if parameters.nil?
+      "Your word is no good around these parts."
+    else
+      word_find(parameters)
+    end
+  end
+
+  def word_find(parameters)
     dictionary = File.read("/usr/share/dict/words").split
     if dictionary.include?(parameters.downcase)
       "#{parameters.capitalize} is known to the Galactic Senate."

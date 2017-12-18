@@ -23,4 +23,8 @@ class Parser
   def params(request)
     request[0].split[1].split("?")[1].split("=")[1] unless request[0].split[1].split("?")[1].nil?
   end
+
+  def http(request)
+    request[0].split[2]
+  end
 end

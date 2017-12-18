@@ -21,7 +21,7 @@ class PathRespondTest < Minitest::Test
   def test_datetime
     path_respond = PathRespond.new
 
-    assert_equal "#{Time.now.strftime("%H:%M%p on %A, %B %-m, %Y")}", path_respond.datetime
+    assert_equal "#{Time.now.strftime("%l:%M%p on %A, %B %-m, %Y")}", path_respond.datetime
   end
 
   def test_shutdown

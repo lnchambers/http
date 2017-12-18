@@ -2,6 +2,7 @@ require "socket"
 require "pry"
 require_relative "parser"
 require_relative "path_respond"
+require_relative "game"
 
 class Server
 
@@ -10,7 +11,7 @@ class Server
   end
 
   def start
-    tcp_server = TCPServer.open(3000)
+    tcp_server = TCPServer.open(9292)
     parser = Parser.new
     path_respond = PathRespond.new
     count = 0
@@ -27,20 +28,20 @@ class Server
       puts request.inspect
 
       if parser.path(request) == "/hello"
-        @output = path_respond.hello
+        @output = path_respond.hello + respond(parser, request)
       elsif parser.path(request) == "/datetime"
-        @output = path_respond.datetime
+        @output = path_respond.datetime + respond(parser, request)
       elsif parser.path(request) == "/shutdown"
-        @output = path_respond.shutdown(count)
+        @output = path_respond.shutdown(count) + respond(parser, request)
         listener.puts headers
         listener.puts @output
         render_view(listener)
-        render_view(listener)
+        close_server(tcp_server)
       elsif parser.path(request) == "/word_search"
         params = parser.params(request)
-        @output = path_respond.word_search(params)
-      elsif parser.path(request) == "/start_game"
-        game.start
+        @output = path_respond.word_search(params) + respond(parser, request)
+      elsif parser.path(request) == "/start_game" && parser.verb(request) == "POST"
+        game_start(listener, request, parser)
       else
         respond(request, listener, parser)
       end
@@ -48,15 +49,15 @@ class Server
     end
   end
 
-  def respond(request, listener, parser)
-    puts "Sending response."
-    response = "<pre>" + request.join("\n") + "</pre>"
-    @output = "<html><head></head><body><pre>
+  def respond(parser, request)
+    # puts "Sending response."
+    # "<pre>" + request.join("\n") + "</pre>"
+    "<html><head></head><body><pre>
     Verb: #{parser.verb(request)}
     Path: #{parser.all_params(request)}
-    Protocol: HTTP/1.1
+    Protocol: #{parser.http(request)}
     Host: #{parser.host(request)}
-    Port: 9292
+    Port: 3000
     Origin: 127.0.0.1
     Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
     </pre></body></html>"
@@ -77,5 +78,28 @@ class Server
     listener.close
     puts "\nResponse complete : Exiting."
   end
+
+  def game_start(listener, request, parser)
+    game = Game.new
+    listener
+    if parser.path(request) == "/start_game" && parser.verb(request) == "POST"
+      "Good luck!"
+    elsif parser.path(request) == "/game" && parser.verb(request) == "POST"
+      game.post
+      @output = game.check_guess
+    elsif parser.path(request) == "/game" && parser.verb(request) == "GET"
+      game.get
+    elsif check_guess.includes? "Congratulations"
+      return check_guess
+    else
+      "You have to put a number."
+    end
+    game_start
+  end
+
+  def close_server(tcp_server)
+    tcp_server.close
+  end
+
 
 end
