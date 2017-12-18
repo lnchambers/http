@@ -1,7 +1,10 @@
+require_relative "parser"
+
 class Game
 
   attr_reader :guess,
-              :guess_count
+              :guess_count,
+              :correct_number
 
   def initialize
     @guess = 0
@@ -9,7 +12,7 @@ class Game
     @correct_number = rand(100)
   end
 
-  def game_get
+  def get
     if @guess_count >= 1
       "#{check_guess}, and you've taken #{@guess_count} guesses."
     else
@@ -17,8 +20,10 @@ class Game
     end
   end
 
-  def game_post
-
+  def post(request)
+    parser = Parser.new
+    @guess = parser.params(request).to_i
+    @guess_count += 1
   end
 
   def check_guess
