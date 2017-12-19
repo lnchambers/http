@@ -16,7 +16,6 @@ class Server
 
   def start
     tcp_server = TCPServer.open(9292)
-    parser = Parser.new
     path_respond = PathRespond.new
     count = 0
     loop do
@@ -26,7 +25,8 @@ class Server
       while line = listener.gets and !line.chomp.empty?
         request << line.chomp
       end
-      content_length = parser.content_length(request)
+      parser = Parser.new(request)
+      content_length = parser.content_length
       @post_data = listener.read(content_length.to_i)
       @post_data = post_data.split[-2]
 
@@ -34,25 +34,25 @@ class Server
       count += 1
       puts request.inspect
 
-      if parser.path(request) == "/hello"
+      if parser.path == "/hello"
         @output = path_respond.hello + respond(parser, request)
-      elsif parser.path(request) == "/datetime"
+      elsif parser.path == "/datetime"
         @output = path_respond.datetime + respond(parser, request)
-      elsif parser.path(request) == "/shutdown"
+      elsif parser.path == "/shutdown"
         @output = path_respond.shutdown(count) + respond(parser, request)
         listener.puts path_respond.headers(@output)
         listener.puts @output
         render_view(listener)
         close_server(tcp_server)
-      elsif parser.path(request) == "/word_search"
-        params = parser.params(request)
+      elsif parser.path == "/word_search"
+        params = parser.params
         @output = path_respond.word_search(params) + respond(parser, request)
-      elsif parser.path(request) == "/start_game" && parser.verb(request) == "POST"
+      elsif parser.path == "/start_game" && parser.verb == "POST"
         @game = Game.new
         @output = game_start(listener, request, parser)
-      elsif parser.path(request) == "/game" && @game.nil?
+      elsif parser.path == "/game" && @game.nil?
         @output = "Please start a game first by going to /start_game"
-      elsif parser.path(request) == "/game" && !@game.nil?
+      elsif parser.path == "/game" && !@game.nil?
       else
         @output = respond(parser, request)
       end
@@ -64,10 +64,10 @@ class Server
     puts "Sending response."
     "<pre>" + request.join("\n") + "</pre>"
     "<html><head></head><body><pre>
-    Verb: #{parser.verb(request)}
-    Path: #{parser.all_params(request)}
-    Protocol: #{parser.http(request)}
-    Host: #{parser.host(request)}
+    Verb: #{parser.verb}
+    Path: #{parser.all_params}
+    Protocol: #{parser.http}
+    Host: #{parser.host}
     Port: 9292
     Origin: 127.0.0.1
     Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
@@ -78,17 +78,17 @@ class Server
     listener.puts path_respond.headers(@output)
     listener.puts @output
     puts ["Wrote this response:", path_respond.headers(@output), @output].join("\n")
-    # listener.close
+    listener.close
     puts "\nResponse complete : Exiting."
   end
 
   def game_start(listener, request, parser)
-    if parser.path(request) == "/start_game" && parser.verb(request) == "POST"
+    if parser.path == "/start_game" && parser.verb == "POST"
       "Good luck!"
-    elsif parser.path(request) == "/game" && parser.verb(request) == "POST"
+    elsif parser.path == "/game" && parser.verb == "POST"
       @game.post()
       @output = game.check_guess
-    elsif parser.path(request) == "/game" && parser.verb(request) == "GET"
+    elsif parser.path == "/game" && parser.verb == "GET"
       @game.get
     elsif check_guess.includes? "Congratulations"
       return check_guess
