@@ -6,8 +6,11 @@ require_relative "game"
 
 class Server
 
+  attr_reader :post_data
+
   def initialize
     @output = ""
+    @post_data
   end
 
   def start
@@ -19,9 +22,15 @@ class Server
       puts "Ready for a request"
       listener = tcp_server.accept
       request = []
+      socket = Socket.new(:INET, :STREAM)
+      socket.connect Socket.sockaddr_in(9292, "127.0.0.1")
       while line = listener.gets and !line.chomp.empty?
         request << line.chomp
       end
+      content_length = parser.content_length(request)
+      @post_data = listener.read(content_length.to_i)
+      @post_data = post_data.split[-2]
+      binding.pry
 
       puts "Got this request:"
       count += 1
@@ -33,7 +42,7 @@ class Server
         @output = path_respond.datetime + respond(parser, request)
       elsif parser.path(request) == "/shutdown"
         @output = path_respond.shutdown(count) + respond(parser, request)
-        listener.puts headers
+        listener.puts path_respond.headers(@output)
         listener.puts @output
         render_view(listener)
         close_server(tcp_server)
@@ -45,7 +54,7 @@ class Server
       else
         respond(parser, request)
       end
-      render_view(listener)
+      render_view(listener, path_respond)
     end
   end
 
@@ -63,18 +72,10 @@ class Server
     </pre></body></html>"
   end
 
-  def headers
-    ["http/1.1 200 ok",
-               "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
-               "server: ruby",
-               "content-type: text/html; charset=iso-8859-1",
-               "content-length: #{@output.length}\r\n\r\n"].join("\r\n")
-  end
-
-  def render_view(listener)
-    listener.puts headers
+  def render_view(listener, path_respond)
+    listener.puts path_respond.headers(@output)
     listener.puts @output
-    puts ["Wrote this response:", headers, @output].join("\n")
+    puts ["Wrote this response:", path_respond.headers(@output), @output].join("\n")
     listener.close
     puts "\nResponse complete : Exiting."
   end

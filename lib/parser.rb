@@ -27,4 +27,8 @@ class Parser
   def http(request)
     request[0].split[2]
   end
+
+  def content_length(request)
+    request[3].split[1]
+  end
 end
