@@ -22,7 +22,7 @@ class Game
   end
 
   def post(request)
-    parser = Parser.new
+    parser = Parser.new(request)
     @guess = server.post_data
     @guess_count += 1
   end

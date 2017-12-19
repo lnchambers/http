@@ -10,23 +10,24 @@ class Server
 
   def initialize
     @output = ""
+    @tcp_server = TCPServer.open(9292)
     @post_data
     @game
   end
 
   def start
-    tcp_server = TCPServer.open(9292)
     path_respond = PathRespond.new
     count = 0
     loop do
       puts "Ready for a request"
-      listener = tcp_server.accept
+      listener = @tcp_server.accept
       request = []
       while line = listener.gets and !line.chomp.empty?
         request << line.chomp
       end
       parser = Parser.new(request)
       content_length = parser.content_length
+      binding.pry
       @post_data = listener.read(content_length.to_i)
       @post_data = post_data.split[-2]
 
@@ -34,27 +35,24 @@ class Server
       count += 1
       puts request.inspect
 
-      if parser.path == "/hello"
-        @output = path_respond.hello + respond(parser, request)
-      elsif parser.path == "/datetime"
-        @output = path_respond.datetime + respond(parser, request)
-      elsif parser.path == "/shutdown"
-        @output = path_respond.shutdown(count) + respond(parser, request)
-        listener.puts path_respond.headers(@output)
-        listener.puts @output
-        render_view(listener)
-        close_server(tcp_server)
-      elsif parser.path == "/word_search"
-        params = parser.params
-        @output = path_respond.word_search(params) + respond(parser, request)
-      elsif parser.path == "/start_game" && parser.verb == "POST"
-        @game = Game.new
-        @output = game_start(listener, request, parser)
-      elsif parser.path == "/game" && @game.nil?
-        @output = "Please start a game first by going to /start_game"
-      elsif parser.path == "/game" && !@game.nil?
-      else
-        @output = respond(parser, request)
+      case parser.path
+        when "/hello"
+          @output = path_respond.hello + respond(parser, request)
+        when "/datetime"
+          @output = path_respond.datetime + respond(parser, request)
+        when "/shutdown" then shutdown(listener, parser, request, count)
+        when "/word_search"
+          params = parser.params
+          @output = path_respond.word_search(params) + respond(parser, request)
+        when "/start_game" && parser.verb == "POST"
+          @game = Game.new
+          @output = game_start(listener, request, parser)
+        when "/game" && @game.nil?
+          "Please start a game first by going to /start_game"
+        when "/game" && !@game.nil?
+
+        else
+          respond(parser, request)
       end
       render_view(listener, path_respond)
     end
@@ -97,8 +95,16 @@ class Server
     end
   end
 
-  def close_server(tcp_server)
-    tcp_server.close
+  def close_server
+    @tcp_server.close
+  end
+
+  def shutdown(listener, parser, request, count)
+    @output = path_respond.shutdown(count) + respond(parser, request)
+    listener.puts path_respond.headers(@output)
+    listener.puts @output
+    render_view(listener)
+    close_server
   end
 
 
