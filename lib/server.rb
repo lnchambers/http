@@ -27,7 +27,6 @@ class Server
       end
       parser = Parser.new(request)
       content_length = parser.content_length
-      binding.pry
       @post_data = listener.read(content_length.to_i)
       @post_data = post_data.split[-2]
 
@@ -36,32 +35,28 @@ class Server
       puts request.inspect
 
       case parser.path
-        when "/hello"
-          @output = path_respond.hello + respond(parser, request)
-        when "/datetime"
-          @output = path_respond.datetime + respond(parser, request)
-        when "/shutdown" then shutdown(listener, parser, request, count)
-        when "/word_search"
-          params = parser.params
-          @output = path_respond.word_search(params) + respond(parser, request)
-        when "/start_game" && parser.verb == "POST"
-          @game = Game.new
-          @output = game_start(listener, request, parser)
-        when "/game" && @game.nil?
-          "Please start a game first by going to /start_game"
-        when "/game" && !@game.nil?
-
+        when "/hello" then get_hello(path_respond, parser, request)
+        when "/datetime" then get_datetime(path_respond, parser, request)
+        when "/shutdown" then get_shutdown(listener, path_respond, parser, count)
+        when "/word_search" then get_word_search(path_respond, parser, request)
+        when "/start_game" && parser.verb == "POST" then get_start_game(listener, request, parser)
+        when "/game" && @game.nil? then get_no_game
+        when "/game" && !@game.nil? then game_play(listener, request, parser)
         else
           respond(parser, request)
       end
-      render_view(listener, path_respond)
+      render_view(listener, path_respond, parser)
     end
   end
 
   def respond(parser, request)
     puts "Sending response."
     "<pre>" + request.join("\n") + "</pre>"
-    "<html><head></head><body><pre>
+    diagnostics(parser)
+  end
+
+  def diagnostics(parser)
+    @output = "<html><head></head><body><pre>
     Verb: #{parser.verb}
     Path: #{parser.all_params}
     Protocol: #{parser.http}
@@ -72,7 +67,7 @@ class Server
     </pre></body></html>"
   end
 
-  def render_view(listener, path_respond)
+  def render_view(listener, path_respond, parser)
     listener.puts path_respond.headers(@output)
     listener.puts @output
     puts ["Wrote this response:", path_respond.headers(@output), @output].join("\n")
@@ -80,14 +75,14 @@ class Server
     puts "\nResponse complete : Exiting."
   end
 
-  def game_start(listener, request, parser)
+  def game_play(listener, request, parser)
     if parser.path == "/start_game" && parser.verb == "POST"
       "Good luck!"
     elsif parser.path == "/game" && parser.verb == "POST"
-      @game.post()
+      @game.post(@post_data)
       @output = game.check_guess
     elsif parser.path == "/game" && parser.verb == "GET"
-      @game.get
+      @output = @game.get
     elsif check_guess.includes? "Congratulations"
       return check_guess
     else
@@ -99,12 +94,32 @@ class Server
     @tcp_server.close
   end
 
-  def shutdown(listener, parser, request, count)
-    @output = path_respond.shutdown(count) + respond(parser, request)
-    listener.puts path_respond.headers(@output)
-    listener.puts @output
-    render_view(listener)
+  def get_shutdown(listener, path_respond, parser, count)
+    @output = path_respond.shutdown(count) + diagnostics(parser)
+    render_view(listener, path_respond, parser)
     close_server
+  end
+
+  def get_datetime(path_respond, parser, request)
+    @output = path_respond.datetime + diagnostics(parser)
+  end
+
+  def get_hello(path_respond, parser, request)
+    @output = path_respond.hello + diagnostics(parser)
+  end
+
+  def get_word_search(path_respond, parser, request)
+    params = parser.params
+    @output = path_respond.word_search(params) + diagnostics(parser)
+  end
+
+  def get_start_game(listener, request, parser)
+    @game = Game.new
+    @output = game_play(listener, request, parser) + diagnostics(parser)
+  end
+
+  def get_no_game
+    "Please start a game first by going to /start_game"
   end
 
 
