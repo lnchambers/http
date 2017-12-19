@@ -43,21 +43,21 @@ class Server
       elsif parser.path(request) == "/start_game" && parser.verb(request) == "POST"
         game_start(listener, request, parser)
       else
-        respond(request, listener, parser)
+        respond(parser, request)
       end
       render_view(listener)
     end
   end
 
   def respond(parser, request)
-    # puts "Sending response."
-    # "<pre>" + request.join("\n") + "</pre>"
+    puts "Sending response."
+    "<pre>" + request.join("\n") + "</pre>"
     "<html><head></head><body><pre>
     Verb: #{parser.verb(request)}
     Path: #{parser.all_params(request)}
     Protocol: #{parser.http(request)}
     Host: #{parser.host(request)}
-    Port: 3000
+    Port: 9292
     Origin: 127.0.0.1
     Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
     </pre></body></html>"
