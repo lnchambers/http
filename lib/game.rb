@@ -1,4 +1,5 @@
 require_relative "parser"
+require_relative "server"
 
 class Game
 
@@ -22,7 +23,7 @@ class Game
 
   def post(request)
     parser = Parser.new
-    @guess = parser.params(request).to_i
+    @guess = server.post_data
     @guess_count += 1
   end
 

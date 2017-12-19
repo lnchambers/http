@@ -11,6 +11,7 @@ class Server
   def initialize
     @output = ""
     @post_data
+    @game
   end
 
   def start
@@ -22,15 +23,12 @@ class Server
       puts "Ready for a request"
       listener = tcp_server.accept
       request = []
-      socket = Socket.new(:INET, :STREAM)
-      socket.connect Socket.sockaddr_in(9292, "127.0.0.1")
       while line = listener.gets and !line.chomp.empty?
         request << line.chomp
       end
       content_length = parser.content_length(request)
       @post_data = listener.read(content_length.to_i)
       @post_data = post_data.split[-2]
-      binding.pry
 
       puts "Got this request:"
       count += 1
@@ -50,9 +48,13 @@ class Server
         params = parser.params(request)
         @output = path_respond.word_search(params) + respond(parser, request)
       elsif parser.path(request) == "/start_game" && parser.verb(request) == "POST"
-        game_start(listener, request, parser)
+        @game = Game.new
+        @output = game_start(listener, request, parser)
+      elsif parser.path(request) == "/game" && @game.nil?
+        @output = "Please start a game first by going to /start_game"
+      elsif parser.path(request) == "/game" && !@game.nil?
       else
-        respond(parser, request)
+        @output = respond(parser, request)
       end
       render_view(listener, path_respond)
     end
@@ -76,26 +78,23 @@ class Server
     listener.puts path_respond.headers(@output)
     listener.puts @output
     puts ["Wrote this response:", path_respond.headers(@output), @output].join("\n")
-    listener.close
+    # listener.close
     puts "\nResponse complete : Exiting."
   end
 
   def game_start(listener, request, parser)
-    game = Game.new
-    listener
     if parser.path(request) == "/start_game" && parser.verb(request) == "POST"
       "Good luck!"
     elsif parser.path(request) == "/game" && parser.verb(request) == "POST"
-      game.post
+      @game.post()
       @output = game.check_guess
     elsif parser.path(request) == "/game" && parser.verb(request) == "GET"
-      game.get
+      @game.get
     elsif check_guess.includes? "Congratulations"
       return check_guess
     else
       "You have to put a number."
     end
-    game_start
   end
 
   def close_server(tcp_server)
