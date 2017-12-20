@@ -39,9 +39,8 @@ class Server
         when "/datetime" then get_datetime(path_respond, parser, request)
         when "/shutdown" then get_shutdown(listener, path_respond, parser, count)
         when "/word_search" then get_word_search(path_respond, parser, request)
-        when "/start_game" && parser.verb == "POST" then get_start_game(listener, request, parser)
-        when "/game" && @game.nil? then get_no_game
-        when "/game" && !@game.nil? then game_play(listener, request, parser)
+        when "/start_game" then get_start_game(listener, request, parser)
+        when "/game" then get_game_route(listener, request, parser)
         else
           respond(parser, request)
       end
@@ -80,13 +79,21 @@ class Server
       "Good luck!"
     elsif parser.path == "/game" && parser.verb == "POST"
       @game.post(@post_data)
-      @output = game.check_guess
+      @output = @game.check_guess
     elsif parser.path == "/game" && parser.verb == "GET"
       @output = @game.get
     elsif check_guess.includes? "Congratulations"
       return check_guess
     else
       "You have to put a number."
+    end
+  end
+
+  def get_game_route(listener, request, parser)
+    if !@game.nil?
+      game_play(listener, request, parser)
+    else
+      @output = "You have to start a game using /start_game first."
     end
   end
 
@@ -116,10 +123,6 @@ class Server
   def get_start_game(listener, request, parser)
     @game = Game.new
     @output = game_play(listener, request, parser) + diagnostics(parser)
-  end
-
-  def get_no_game
-    "Please start a game first by going to /start_game"
   end
 
 

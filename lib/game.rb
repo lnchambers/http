@@ -22,7 +22,7 @@ class Game
   end
 
   def post(post_data)
-    @guess = post_data
+    @guess = post_data.to_i
     @guess_count += 1
   end
 
