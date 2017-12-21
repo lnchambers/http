@@ -5,12 +5,10 @@ class Parser
               :host,
               :http,
               :params,
-              :request,
               :all_params,
               :content_length
 
   def initialize(request)
-    @request        = request
     @verb           = request[0].split[0]
     @host           = request[1].split[1]
     @all_params     = request[0].split[1]
