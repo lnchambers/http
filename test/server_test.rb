@@ -3,76 +3,58 @@ require "./lib/server"
 
 class ServerTest < Minitest::Test
 
-  def test_server_exists
-    skip
-    server = Server.new
-
-    assert_instance_of Server, server
-    server.close_server
-  end
-
   def test_server_starts
-    skip
-    server = Server.new
+    response = Faraday.get "localhost:9292"
 
-    assert_equal "Ready for a request", server.start
-    server.close_server
+    assert_equal "Ready for a request", response
   end
 
   def test_request_returns_an_appropiate_array
     skip
-    server = Server.new
+    response = Faraday.get("127.0.0.1:9292")
 
     assert_instance_of Array, server.request
-    server.close_server
   end
 
   def test_increment_counter
     skip
-    server = Server.new
+    response = Faraday.get("127.0.0.1:9292")
 
     assert_equal 0, server.count
 
-    #request
+    response
 
     assert_equal 1, server.count
 
-    #request
-    #request
-    #request
-    #request
+    response
+    response
+    response
+    response
 
     assert_equal 5, server.count
-    server.close_server
   end
 
   def test_post_data
     skip
-    server = Server.new
-
-    #request
+    response = Faraday.post("127.0.0.1:9292")
 
     assert_equal "50", server.post_data
-    server.close_server
   end
 
   def test_direction
     skip
-    server = Server.new
-
-    #request to hello
+    response = Faraday.get("127.0.0.1:9292/hello")
 
     assert_equal "Hello World! (1)", server.output
 
-    #request to datetime
+    response = Faraday.get("127.0.0.1:9292/datetime")
 
     assert_equal "#{Time.now.strftime("%l:%M%p on %A, %B %-m, %Y")}", server.output
-    server.close_server
   end
 
   def test_render_view
     skip
-    server = Server.new
+    response = Faraday.get("127.0.0.1:9292")
 
     #request
 
