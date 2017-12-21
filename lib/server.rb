@@ -33,19 +33,25 @@ class Server
       puts "Got this request:"
       count += 1
       puts request.inspect
-
-      case parser.path
-        when "/hello" then get_hello(path_respond, parser, request)
-        when "/datetime" then get_datetime(path_respond, parser, request)
-        when "/shutdown" then get_shutdown(listener, path_respond, parser, count)
-        when "/word_search" then get_word_search(path_respond, parser, request)
-        when "/start_game" then get_start_game(listener, request, parser)
-        when "/game" then get_game_route(listener, request, parser)
-        else
-          respond(parser, request)
-      end
-      render_view(listener, path_respond, parser)
+      direct(listener, request, parser, path_respond, count)
     end
+  end
+
+
+  def direct(listener, request, parser, path_respond, count)
+    case parser.path
+      when "/" then respond(parser, request)
+      when "/hello" then get_hello(path_respond, parser, request)
+      when "/datetime" then get_datetime(path_respond, parser, request)
+      when "/shutdown" then get_shutdown(listener, path_respond, parser, count)
+      when "/word_search" then get_word_search(path_respond, parser, request)
+      when "/start_game" then get_start_game(listener, request, parser)
+      when "/game" then get_game_route(listener, request, parser)
+      when "/force_error" then get_error(listener, path_respond)
+      else
+        get_redirect
+    end
+    render_view(listener, path_respond, parser)
   end
 
   def respond(parser, request)
@@ -67,16 +73,19 @@ class Server
   end
 
   def render_view(listener, path_respond, parser)
-    listener.puts path_respond.headers(@output)
+    listener.puts path_respond.header_200(@output)
     listener.puts @output
-    puts ["Wrote this response:", path_respond.headers(@output), @output].join("\n")
+    puts ["Wrote this response:", path_respond.header_200(@output), @output].join("\n")
     listener.close
     puts "\nResponse complete : Exiting."
   end
 
   def game_play(listener, request, parser)
-    if parser.path == "/start_game" && parser.verb == "POST"
+    if parser.path == "/start_game" && parser.verb == "POST" && @game.nil?
       "Good luck!"
+    elsif parser.path == "/start_game" && parser.verb == "POST" && !@game.nil?
+      "Go fuck yourself and win the game you already are playing!"
+      get_redirect_403(parser)
     elsif parser.path == "/game" && parser.verb == "POST"
       @game.post(@post_data)
       @output = @game.check_guess
@@ -87,6 +96,31 @@ class Server
     else
       "You have to put a number."
     end
+  end
+
+  def get_redirect_301(parser)
+    parser.path = "/game"
+  end
+
+  def get_redirect_401(parser)
+
+  end
+
+  def get_redirect_403(parser)
+
+  end
+
+  def get_redirect_404(parser)
+
+  end
+
+  def get_redirect_500(parser)
+
+  end
+
+  def get_error(listener, path_respond)
+    listener.puts path_respond.header_500(@output)
+    close_server
   end
 
   def get_game_route(listener, request, parser)
@@ -122,7 +156,11 @@ class Server
 
   def get_start_game(listener, request, parser)
     @game = Game.new
-    @output = game_play(listener, request, parser) + diagnostics(parser)
+    if parser.path == "/start_game" && parser.verb == "POST" && @game.nil?
+      @output = game_play(listener, request, parser) + diagnostics(parser)
+    else
+      
+
   end
 
 

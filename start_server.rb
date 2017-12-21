@@ -1,3 +1,3 @@
-require "./lib/server.rb"
+require "./lib/server"
 server = Server.new
 server.start

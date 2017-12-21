@@ -34,12 +34,57 @@ class PathRespond
     end
   end
 
-  def headers(output)
+  def headers
+
+  end
+
+  def header_200(output)
     ["http/1.1 200 ok",
-               "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
-               "server: ruby",
-               "content-type: text/html; charset=iso-8859-1",
-               "content-length: #{output.length}\r\n\r\n"].join("\r\n")
+     "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+     "server: ruby",
+     "content-type: text/html; charset=iso-8859-1",
+     "content-length: #{output.length}\r\n\r\n"].join("\r\n")
+  end
+
+  def header_301(output)
+    ["http/1.1 301 Moved Permanently",
+     "Location: http://127.0.0.1:9292/game",
+     "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+     "server: ruby",
+     "content-type: text/html; charset=iso-8859-1",
+     "content-length: #{output.length}\r\n\r\n"].join("\r\n")
+  end
+
+  def header_401(output)
+    ["http/1.1 401 Unauthorized",
+     "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+     "server: ruby",
+     "content-type: text/html; charset=iso-8859-1",
+     "content-length: #{output.length}\r\n\r\n"].join("\r\n")
+  end
+
+  def header_403(output)
+    ["http/1.1 403 Forbidden",
+     "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+     "server: ruby",
+     "content-type: text/html; charset=iso-8859-1",
+     "content-length: #{output.length}\r\n\r\n"].join("\r\n")
+  end
+
+  def header_404(output)
+    ["http/1.1 404 Not Found",
+     "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+     "server: ruby",
+     "content-type: text/html; charset=iso-8859-1",
+     "content-length: #{output.length}\r\n\r\n"].join("\r\n")
+  end
+
+  def header_500(output)
+    ["http/1.1 500 Internal Server Error",
+     "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+     "server: ruby",
+     "content-type: text/html; charset=iso-8859-1",
+     "content-length: #{output.length}\r\n\r\n"].join("\r\n")
   end
 
 end
