@@ -86,4 +86,12 @@ class PathRespond
      "content-length: #{output.length}\r\n\r\n"].join("\r\n")
   end
 
+  def system_error
+    "/Users/lukechambers/turing/1module/projects/http/lib/server.rb:23:in `accept': closed stream (IOError)
+    from /Users/lukechambers/turing/1module/projects/http/lib/server.rb:23:in `block in start'
+    from /Users/lukechambers/turing/1module/projects/http/lib/server.rb:21:in `loop'
+    from /Users/lukechambers/turing/1module/projects/http/lib/server.rb:21:in `start'
+    from start_server.rb:3:in `<main>'"
+  end
+
 end

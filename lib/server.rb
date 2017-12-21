@@ -122,7 +122,7 @@ class Server
 
   def get_redirect_500(listener, path_respond)
     listener.puts path_respond.header_500(@output)
-    listener.puts @output
+    @output = path_respond.system_error
     close_server
   end
 
