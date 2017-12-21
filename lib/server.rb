@@ -47,7 +47,7 @@ class Server
       when "/word_search" then get_word_search(path_respond, parser, request)
       when "/start_game" then get_start_game(listener, request, parser, path_respond)
       when "/game" then get_game_route(listener, request, parser, path_respond)
-      when "/force_error" then get_error(listener, path_respond)
+      when "/force_error" then get_redirect_500(listener, path_respond)
       else
         get_redirect_404(listener, path_respond)
     end
@@ -106,17 +106,23 @@ class Server
 
   def get_redirect_403(listener, path_respond)
     listener.puts path_respond.header_403(@output)
+    @output = "YOU. SHALL. NOT. PASS!
+    403
+    Forbidden"
+    listener.puts @output
   end
 
   def get_redirect_404(listener, path_respond)
     listener.puts path_respond.header_404(@output)
     @output = "They've discovered our secret! Run away!
-    \r\n\r\n404\r\nPage Not Found"
+    404
+    Page Not Found"
+    listener.puts @output
   end
 
   def get_redirect_500(listener, path_respond)
-    @output = raise SystemError
     listener.puts path_respond.header_500(@output)
+    listener.puts @output
     close_server
   end
 
@@ -154,11 +160,13 @@ class Server
   def get_start_game(listener, request, parser, path_respond)
     if parser.verb == "GET"
       @output = "Please put a post request in."
-    else
+    elsif @game.nil?
       @game = Game.new
+      get_redirect_301(listener, path_respond)
       @output = game_play(listener, request, parser, path_respond) + diagnostics(parser)
+    else
+      get_redirect_403(listener, path_respond)
     end
   end
-
 
 end

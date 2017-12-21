@@ -14,11 +14,7 @@ class Game
   end
 
   def get
-    if @guess_count >= 1
-      "#{check_guess}, and you've taken #{@guess_count} guesses."
-    else
-      "You have to make a guess first."
-    end
+    "#{check_guess}, and you've taken #{@guess_count} guesses."
   end
 
   def post(post_data)
