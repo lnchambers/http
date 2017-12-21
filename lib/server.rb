@@ -81,11 +81,8 @@ class Server
   end
 
   def game_play(listener, request, parser)
-    if parser.path == "/start_game" && parser.verb == "POST" && @game.nil?
+    if parser.path == "/start_game" && parser.verb == "POST"
       "Good luck!"
-    elsif parser.path == "/start_game" && parser.verb == "POST" && !@game.nil?
-      "Go fuck yourself and win the game you already are playing!"
-      get_redirect_403(parser)
     elsif parser.path == "/game" && parser.verb == "POST"
       @game.post(@post_data)
       @output = @game.check_guess
@@ -100,25 +97,25 @@ class Server
 
   def get_redirect_301(listener, path_respond)
     listener.puts path_respond.header_301(@output)
+    listener.close
   end
 
   def get_redirect_401(parser)
-
+    listener.puts path_respond.header_401(@output)
+    listener.close
   end
 
   def get_redirect_403(parser)
-
+    listener.puts path_respond.header_403(@output)
+    listener.close
   end
 
   def get_redirect_404(parser)
-
+    listener.puts path_respond.header_404(@output)
+    listener.close
   end
 
   def get_redirect_500(parser)
-
-  end
-
-  def get_error(listener, path_respond)
     listener.puts path_respond.header_500(@output)
     close_server
   end
@@ -156,7 +153,6 @@ class Server
 
   def get_start_game(listener, request, parser, path_respond)
     @game = Game.new
-    # get_redirect_301(listener, path_respond)
     @output = game_play(listener, request, parser) + diagnostics(parser)
   end
 
