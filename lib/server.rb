@@ -45,7 +45,7 @@ class Server
       when "/datetime" then get_datetime(path_respond, parser, request)
       when "/shutdown" then get_shutdown(listener, path_respond, parser, count)
       when "/word_search" then get_word_search(path_respond, parser, request)
-      when "/start_game" then get_start_game(listener, request, parser)
+      when "/start_game" then get_start_game(listener, request, parser, path_respond)
       when "/game" then get_game_route(listener, request, parser)
       when "/force_error" then get_error(listener, path_respond)
       else
@@ -98,8 +98,8 @@ class Server
     end
   end
 
-  def get_redirect_301(parser)
-    parser.path = "/game"
+  def get_redirect_301(listener, path_respond)
+    listener.puts path_respond.header_301(@output)
   end
 
   def get_redirect_401(parser)
@@ -154,13 +154,10 @@ class Server
     @output = path_respond.word_search(params) + diagnostics(parser)
   end
 
-  def get_start_game(listener, request, parser)
+  def get_start_game(listener, request, parser, path_respond)
     @game = Game.new
-    if parser.path == "/start_game" && parser.verb == "POST" && @game.nil?
-      @output = game_play(listener, request, parser) + diagnostics(parser)
-    else
-      
-
+    # get_redirect_301(listener, path_respond)
+    @output = game_play(listener, request, parser) + diagnostics(parser)
   end
 
 

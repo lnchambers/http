@@ -35,7 +35,7 @@ class PathRespond
   end
 
   def headers
-
+    
   end
 
   def header_200(output)
