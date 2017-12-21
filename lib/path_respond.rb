@@ -4,7 +4,7 @@ class PathRespond
 
   def initialize
     @hello_count = 0
-    @headers
+    @headers = []
   end
 
   def hello
@@ -92,6 +92,18 @@ class PathRespond
     from /Users/lukechambers/turing/1module/projects/http/lib/server.rb:21:in `loop'
     from /Users/lukechambers/turing/1module/projects/http/lib/server.rb:21:in `start'
     from start_server.rb:3:in `<main>'"
+  end
+
+  def diagnostic(parser)
+    "<html><head></head><body><pre>
+    Verb: #{parser.verb}
+    Path: #{parser.all_params}
+    Protocol: #{parser.http}
+    Host: #{parser.host}
+    Port: 9292
+    Origin: 127.0.0.1
+    Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+    </pre></body></html>"
   end
 
 end
