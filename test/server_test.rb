@@ -4,9 +4,19 @@ require "./lib/server"
 class ServerTest < Minitest::Test
 
   def test_server_starts
-    response = Faraday.get "localhost:9292"
+    response = Faraday.get "http://127.0.0.1:9292"
 
-    assert_equal "Ready for a request", response
+    expected = "<html><head></head><body><pre>
+     Verb: GET
+     Path: /
+     Protocol: HTTP/1.1
+     Host: Faraday
+     Port: 9292
+     Origin: 127.0.0.1
+     Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+     </pre></body></html>"
+
+     assert_equal expected.split(" "), response.body.split(" ")
   end
 
   def test_request_returns_an_appropiate_array
