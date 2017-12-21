@@ -40,18 +40,36 @@ class Server
 
   def direct(listener, request, parser, path_respond, count)
     case parser.path
-      when "/" then respond(parser, request, path_respond)
+    when "/" then respond(parser, request, path_respond)
       when "/hello" then get_hello(path_respond, parser, request)
       when "/datetime" then get_datetime(path_respond, parser, request)
       when "/shutdown" then get_shutdown(listener, path_respond, parser, count)
       when "/word_search" then get_word_search(path_respond, parser, request)
       when "/start_game" then get_start_game(listener, request, parser, path_respond)
       when "/game" then get_game_route(listener, request, parser, path_respond)
-      when "/force_error" then get_error(listener, path_respond)
+      when "/force_error" then get_redirect_500(listener, path_respond)
       else
-        get_redirect
+        get_redirect_404(listener, path_respond)
     end
     render_view(listener, path_respond, parser)
+  end
+
+  def respond(parser, request, path_respond)
+    puts "Sending response."
+    "<pre>" + request.join("\n") + "</pre>"
+    diagnostics(parser, path_respond)
+  end
+
+  def diagnostics(parser, path_respond)
+    @output = path_respond.diagnostic(parser)
+  end
+
+  def render_view(listener, path_respond, parser)
+    listener.puts path_respond.headers(@output, 200)
+    listener.puts @output
+    puts ["Wrote this response:", path_respond.header, @output].join("\n")
+    listener.close
+    puts "\nResponse complete : Exiting."
   end
 
   def game_play(listener, request, parser, path_respond)
@@ -70,42 +88,33 @@ class Server
     end
   end
 
-  def respond(parser, request, path_respond)
-    puts "Sending response."
-    "<pre>" + request.join("\n") + "</pre>"
-    diagnostics(parser, path_respond)
-  end
-
-  def diagnostics(parser, path_respond)
-    @output = path_respond.diagnostic(parser)
-  end
-
-  def render_view(listener, path_respond, parser)
-    listener.puts path_respond.header_200(@output)
-    listener.puts @output
-    puts ["Wrote this response:", path_respond.header_200(@output), @output].join("\n")
-    listener.close
-    puts "\nResponse complete : Exiting."
-  end
-
   def get_redirect_301(listener, path_respond)
-    listener.puts path_respond.header_301(@output)
+    listener.puts path_respond.headers(@output, 301)
   end
 
   def get_redirect_401(listener, path_respond)
-    listener.puts path_respond.header_401(@output)
+    listener.puts path_respond.headers(@output, 401)
   end
 
   def get_redirect_403(listener, path_respond)
-    listener.puts path_respond.header_403(@output)
+    listener.puts path_respond.headers(@output, 403)
+    @output = "YOU. SHALL. NOT. PASS!
+    403
+    Forbidden"
+    listener.puts @output
   end
 
   def get_redirect_404(listener, path_respond)
-    listener.puts path_respond.header_404(@output)
+    listener.puts path_respond.headers(@output, 404)
+    @output = "They've discovered our secret! Run away!
+    404
+    Page Not Found"
+    listener.puts @output
   end
 
   def get_redirect_500(listener, path_respond)
-    listener.puts path_respond.header_500(@output)
+    listener.puts path_respond.headers(@output, 500)
+    @output = path_respond.system_error
     close_server
   end
 
@@ -122,28 +131,34 @@ class Server
   end
 
   def get_shutdown(listener, path_respond, parser, count)
-    @output = path_respond.shutdown(count) + diagnostics(parser, path_respond)
+    @output = path_respond.shutdown(count) + diagnostics(parser)
     render_view(listener, path_respond, parser)
     close_server
   end
 
   def get_datetime(path_respond, parser, request)
-    @output = path_respond.datetime + diagnostics(parser, path_respond)
+    @output = path_respond.datetime + diagnostics(parser)
   end
 
   def get_hello(path_respond, parser, request)
-    @output = path_respond.hello + diagnostics(parser, path_respond)
+    @output = path_respond.hello + diagnostics(parser)
   end
 
   def get_word_search(path_respond, parser, request)
     params = parser.params
-    @output = path_respond.word_search(params) + diagnostics(parser, path_respond)
+    @output = path_respond.word_search(params) + diagnostics(parser)
   end
 
   def get_start_game(listener, request, parser, path_respond)
-    @game = Game.new
-    @output = game_play(listener, request, parser, path_respond) + diagnostics(parser, path_respond)
+    if parser.verb == "GET"
+      @output = "Please put a post request in."
+    elsif @game.nil?
+      @game = Game.new
+      get_redirect_301(listener, path_respond)
+      @output = game_play(listener, request, parser, path_respond) + diagnostics(parser)
+    else
+      get_redirect_403(listener, path_respond)
+    end
   end
-
 
 end

@@ -20,19 +20,13 @@ class ServerTest < Minitest::Test
   end
 
   def test_request_returns_an_appropiate_array
-    skip
-    response = Faraday.get("127.0.0.1:9292")
+    response = Faraday.get "http://127.0.0.1:9292"
 
-    assert_instance_of Array, server.request
+    assert_instance_of String, response.body
   end
 
   def test_increment_counter
-    skip
-    response = Faraday.get("127.0.0.1:9292")
-
-    assert_equal 0, server.count
-
-    response
+    response = Faraday.get "http://127.0.0.1:9292"
 
     assert_equal 1, server.count
 
@@ -46,25 +40,25 @@ class ServerTest < Minitest::Test
 
   def test_post_data
     skip
-    response = Faraday.post("127.0.0.1:9292")
+    response = Faraday.post "http://127.0.0.1:9292"
 
     assert_equal "50", server.post_data
   end
 
   def test_direction
     skip
-    response = Faraday.get("127.0.0.1:9292/hello")
+    response = Faraday.get "http://127.0.0.1:9292/hello"
 
     assert_equal "Hello World! (1)", server.output
 
-    response = Faraday.get("127.0.0.1:9292/datetime")
+    response = Faraday.get "http://127.0.0.1:9292/datetime"
 
     assert_equal "#{Time.now.strftime("%l:%M%p on %A, %B %-m, %Y")}", server.output
   end
 
   def test_render_view
     skip
-    response = Faraday.get("127.0.0.1:9292")
+    response = Faraday.get "http://127.0.0.1:9292"
 
     #request
 
@@ -73,19 +67,9 @@ class ServerTest < Minitest::Test
 
   def test_diagnostics_parser
     skip
-    server = Server.new
+    response = Faraday.get "http://127.0.0.1:9292"
 
-    #request
-
-    assert_equal "<html><head></head><body><pre>
-    Verb: #{parser.verb}
-    Path: #{parser.all_params}
-    Protocol: #{parser.http}
-    Host: #{parser.host}
-    Port: 9292
-    Origin: 127.0.0.1
-    Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
-    </pre></body></html>", server.output
+    #test
   end
 
 end
