@@ -1,7 +1,10 @@
 class PathRespond
 
+  attr_reader :headers
+
   def initialize
     @hello_count = 0
+    @headers
   end
 
   def hello
@@ -34,12 +37,8 @@ class PathRespond
     end
   end
 
-  def headers
-    
-  end
-
   def header_200(output)
-    ["http/1.1 200 ok",
+    @headers = ["http/1.1 200 ok",
      "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
      "server: ruby",
      "content-type: text/html; charset=iso-8859-1",
@@ -47,7 +46,7 @@ class PathRespond
   end
 
   def header_301(output)
-    ["http/1.1 301 Moved Permanently",
+    @headers = ["http/1.1 301 Moved Permanently",
      "Location: http://127.0.0.1:9292/game",
      "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
      "server: ruby",
@@ -56,7 +55,7 @@ class PathRespond
   end
 
   def header_401(output)
-    ["http/1.1 401 Unauthorized",
+    @headers = ["http/1.1 401 Unauthorized",
      "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
      "server: ruby",
      "content-type: text/html; charset=iso-8859-1",
@@ -64,7 +63,7 @@ class PathRespond
   end
 
   def header_403(output)
-    ["http/1.1 403 Forbidden",
+    @headers = ["http/1.1 403 Forbidden",
      "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
      "server: ruby",
      "content-type: text/html; charset=iso-8859-1",
@@ -72,7 +71,7 @@ class PathRespond
   end
 
   def header_404(output)
-    ["http/1.1 404 Not Found",
+    @headers = ["http/1.1 404 Not Found",
      "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
      "server: ruby",
      "content-type: text/html; charset=iso-8859-1",
@@ -80,7 +79,7 @@ class PathRespond
   end
 
   def header_500(output)
-    ["http/1.1 500 Internal Server Error",
+    @headers = ["http/1.1 500 Internal Server Error",
      "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
      "server: ruby",
      "content-type: text/html; charset=iso-8859-1",
