@@ -1,7 +1,5 @@
-require "minitest/autorun"
-require "minitest/pride"
-require "pry"
-require_relative "../lib/path_respond"
+require "./test/test_helper"
+require "./lib/path_respond"
 
 class PathRespondTest < Minitest::Test
 
@@ -14,14 +12,14 @@ class PathRespondTest < Minitest::Test
   def test_hello
     path_respond = PathRespond.new
 
-    assert_equal "Hello World! (0)", path_respond.hello
     assert_equal "Hello World! (1)", path_respond.hello
+    assert_equal "Hello World! (2)", path_respond.hello
   end
 
   def test_datetime
     path_respond = PathRespond.new
 
-    assert_equal "#{Time.now.strftime("%H:%M%p on %A, %B %-m, %Y")}", path_respond.datetime
+    assert_equal "#{Time.now.strftime("%l:%M%p on %A, %B %-m, %Y")}", path_respond.datetime
   end
 
   def test_shutdown
