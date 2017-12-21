@@ -32,7 +32,7 @@ class Game
     elsif @guess < @correct_number
       "Your guess is low"
     else
-      "Congratulations! The number was #{@correct_number} and it only took you #{@guess_count} tries!"
+      "Congratulations! The number was #{@correct_number}"
     end
   end
 
