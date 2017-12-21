@@ -16,7 +16,7 @@ class ServerTest < Minitest::Test
      Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
      </pre></body></html>"
 
-     assert_equal expected.split(" "), response.body.split(" ")
+     assert_equal expected, response.body
   end
 
   def test_request_returns_an_appropiate_array

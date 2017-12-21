@@ -82,18 +82,20 @@ class ParserTest < Minitest::Test
   end
 
   def test_content_length_returns_correct_length
-    parser = Parser.new(["POST / HTTP/1.1",
+    parser = Parser.new([
+      "POST / HTTP/1.1",
       "Host: 127.0.0.1:9292",
-       "Connection: keep-alive",
-        "Content-Length: 142",
-         "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36",
-          "Cache-Control: no-cache",
-           "Origin: chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop",
-            "Postman-Token: cddb8d3e-c774-7fe2-0a60-3e99a1a6b5fb",
-             "Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryJTTfjsK5SvSGCAZo",
-              "Accept: */*",
-               "Accept-Encoding: gzip, deflate, br",
-                "Accept-Language:en-US,en;q=0.9"])
+      "Connection: keep-alive",
+      "Content-Length: 142",
+      "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36",
+      "Cache-Control: no-cache",
+      "Origin: chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop",
+      "Postman-Token: cddb8d3e-c774-7fe2-0a60-3e99a1a6b5fb",
+      "Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryJTTfjsK5SvSGCAZo",
+      "Accept: */*",
+      "Accept-Encoding: gzip, deflate, br",
+      "Accept-Language:en-US,en;q=0.9"
+    ])
 
     assert_equal "142", parser.content_length
   end
