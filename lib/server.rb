@@ -129,13 +129,6 @@ class Server
     end
   end
 
-  def post_data
-    @parser = Parser.new(@request)
-    content_length = @parser.content_length
-    @post_data = @listener.read(content_length.to_i)
-    @post_data = post_data.split[-2]
-  end
-
   def get_redirect_301
     @listener.puts @response.header_301(@output)
   end
