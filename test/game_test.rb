@@ -19,7 +19,7 @@ class GameTest < Minitest::Test
   def test_game_post_gets_number_and_raises_guess_count
     game = Game.new
 
-    game_post = game.post("26")
+    game.post("26")
 
     assert_equal 26, game.guess
     assert_equal 1, game.guess_count
