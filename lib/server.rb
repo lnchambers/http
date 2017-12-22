@@ -12,9 +12,7 @@ class Server
     @output = ""
     @tcp_server = TCPServer.open(9292)
     @response = Response.new
-    @post_data
     @request = []
-    @game
   end
 
   def start

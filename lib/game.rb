@@ -10,7 +10,7 @@ class Game
   def initialize
     @guess = 0
     @guess_count = 0
-    @correct_number = rand(100)
+    @correct_number = rand(100) + 1
   end
 
   def get
