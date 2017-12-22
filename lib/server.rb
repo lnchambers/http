@@ -66,8 +66,7 @@ class Server
   end
 
   def render_view
-    get_redirect_200 if @response.header.empty?
-    @listener.puts @response.header
+    get_redirect_200
     @listener.puts @output
     puts ["Wrote this response:", @response.header, @output].join("\n")
     @listener.close
@@ -141,11 +140,12 @@ class Server
   end
 
   def get_redirect_200
-    @response.headers(@output, 200)
+    @listener.puts @response.headers(@output, 200)
   end
 
   def get_redirect_301
     @listener.puts @response.headers(@output, 301)
+    binding.pry
   end
 
   def get_redirect_401
