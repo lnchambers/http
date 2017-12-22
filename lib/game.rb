@@ -1,5 +1,5 @@
-require_relative "parser"
-require_relative "server"
+require "./lib/parser"
+require "./lib/server"
 
 class Game
 

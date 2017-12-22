@@ -34,16 +34,4 @@ class ResponseTest < Minitest::Test
     assert_equal "Power is known to the Galactic Senate.", response.word_search("PoWeR")
     assert_equal "Yoda is unknown to the Jedi Council.", response.word_search("yoDA")
   end
-
-  def test_status_codes
-    response = Response.new
-
-    assert_equal "301 Moved Permanently", response.status_code(301)
-  end
-
-  def test_wrong_status_codes
-    response = Response.new
-
-    assert_equal "Bad Header", response.status_code(666)
-  end
 end
