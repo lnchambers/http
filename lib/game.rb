@@ -3,9 +3,9 @@ require "./lib/server"
 
 class Game
 
-  attr_reader :guess,
-              :guess_count,
-              :correct_number
+  attr_reader   :guess,
+                :guess_count
+  attr_accessor :correct_number
 
   def initialize
     @guess = 0
