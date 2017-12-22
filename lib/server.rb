@@ -3,10 +3,8 @@ require "pry"
 require "./lib/parser"
 require "./lib/response"
 require "./lib/game"
-require "./lib/redirect" 
 
 class Server
-  include Redirect
 
   attr_reader :post_data
 
@@ -68,7 +66,8 @@ class Server
   end
 
   def render_view
-    @listener.puts @response.headers(@output, 200)
+    get_redirect_200 if @response.header.empty?
+    @listener.puts @response.header
     @listener.puts @output
     puts ["Wrote this response:", @response.header, @output].join("\n")
     @listener.close
@@ -139,6 +138,39 @@ class Server
     content_length = @parser.content_length
     @post_data = @listener.read(content_length.to_i)
     @post_data = post_data.split[-2]
+  end
+
+  def get_redirect_200
+    @response.headers(@output, 200)
+  end
+
+  def get_redirect_301
+    @listener.puts @response.headers(@output, 301)
+  end
+
+  def get_redirect_401
+    @listener.puts @response.headers(@output, 401)
+  end
+
+  def get_redirect_403
+    @listener.puts @response.headers(@output, 403)
+    @output = "YOU. SHALL. NOT. PASS!
+    403
+    Forbidden"
+    @listener.puts @output
+  end
+
+  def get_redirect_404
+    @listener.puts @response.headers(@output, 404)
+    @output = "They've discovered our secret! Run away!
+    404
+    Page Not Found"
+    @listener.puts @output
+  end
+
+  def get_redirect_500
+    @listener.puts @response.headers(@output, 500)
+    raise SystemCallError.new("Everything is broken")
   end
 
 end

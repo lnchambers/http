@@ -59,7 +59,7 @@ class Response
   def code_processing(value)
     case value
     when nil then value = "Bad Header"
-    when "301 Moved Permanently" then @location = "Location: http://127.0.0.1/game"
+    when "301 Moved Permanently" then @location = "http://127.0.0.1/game"
     end
     value
   end
