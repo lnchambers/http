@@ -66,9 +66,9 @@ class Server
   end
 
   def render_view
-    get_redirect_200
+    @listener.puts @response.header_200(@output)
     @listener.puts @output
-    puts ["Wrote this response:", @response.header, @output].join("\n")
+    puts ["Wrote this response:", @response.header_200(@output), @output].join("\n")
     @listener.close
     puts "\nResponse complete : Exiting."
   end
@@ -139,21 +139,16 @@ class Server
     @post_data = post_data.split[-2]
   end
 
-  def get_redirect_200
-    @listener.puts @response.headers(@output, 200)
-  end
-
   def get_redirect_301
-    @listener.puts @response.headers(@output, 301)
-    binding.pry
+    @listener.puts @response.header_301(@output)
   end
 
   def get_redirect_401
-    @listener.puts @response.headers(@output, 401)
+    @listener.puts @response.header_401(@output)
   end
 
   def get_redirect_403
-    @listener.puts @response.headers(@output, 403)
+    @listener.puts @response.header_403(@output)
     @output = "YOU. SHALL. NOT. PASS!
     403
     Forbidden"
@@ -161,7 +156,7 @@ class Server
   end
 
   def get_redirect_404
-    @listener.puts @response.headers(@output, 404)
+    @listener.puts @response.header_404(@output)
     @output = "They've discovered our secret! Run away!
     404
     Page Not Found"
@@ -169,7 +164,7 @@ class Server
   end
 
   def get_redirect_500
-    @listener.puts @response.headers(@output, 500)
+    @listener.puts @response.header_500(@output)
     raise SystemCallError.new("Everything is broken")
   end
 

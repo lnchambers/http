@@ -1,10 +1,10 @@
 class Response
 
-  attr_reader :header
+  attr_reader :headers
 
   def initialize
     @hello_count = 0
-    @header = ""
+    @headers = ""
   end
 
   def hello
@@ -37,31 +37,53 @@ class Response
     end
   end
 
-  def headers(output, key)
-     @header = ["http/1.1 #{status_code(key)}",
-     "Location: #{@location}",
+  def header_200(output)
+    @headers = ["http/1.1 200 ok",
      "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
      "server: ruby",
      "content-type: text/html; charset=iso-8859-1",
      "content-length: #{output.length}\r\n\r\n"].join("\r\n")
   end
 
-  def status_code(key)
-     codes = {200 => "200 Ok",
-              301 => "301 Moved Permanently",
-              401 => "401 Unauthorized",
-              403 => "403 Forbidden",
-              404 => "404 Not Found",
-              500 => "500 Internal Server Error"}
-      code_processing(codes[key])
+  def header_301(output)
+    @headers = ["http/1.1 301 Moved Permanently",
+     "Location: http://127.0.0.1:9292/game",
+     "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+     "server: ruby",
+     "content-type: text/html; charset=iso-8859-1",
+     "content-length: #{output.length}\r\n\r\n"].join("\r\n")
   end
 
-  def code_processing(value)
-    case value
-    when nil then value = "Bad Header"
-    when "301 Moved Permanently" then @location = "http://127.0.0.1/game"
-    end
-    value
+  def header_401(output)
+    @headers = ["http/1.1 401 Unauthorized",
+     "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+     "server: ruby",
+     "content-type: text/html; charset=iso-8859-1",
+     "content-length: #{output.length}\r\n\r\n"].join("\r\n")
+  end
+
+  def header_403(output)
+    @headers = ["http/1.1 403 Forbidden",
+     "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+     "server: ruby",
+     "content-type: text/html; charset=iso-8859-1",
+     "content-length: #{output.length}\r\n\r\n"].join("\r\n")
+  end
+
+  def header_404(output)
+    @headers = ["http/1.1 404 Not Found",
+     "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+     "server: ruby",
+     "content-type: text/html; charset=iso-8859-1",
+     "content-length: #{output.length}\r\n\r\n"].join("\r\n")
+  end
+
+  def header_500(output)
+    @headers = ["http/1.1 500 Internal Server Error",
+     "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+     "server: ruby",
+     "content-type: text/html; charset=iso-8859-1",
+     "content-length: #{output.length}\r\n\r\n"].join("\r\n")
   end
 
   def diagnostic(parser)
