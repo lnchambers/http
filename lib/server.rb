@@ -83,7 +83,7 @@ class Server
     elsif @parser.path == "/game" && @parser.verb == "GET"
       @output = @game.get
     elsif check_guess.includes? "Congratulations"
-      return check_guess
+      @game = Game.new
     else
       "You have to put a number."
     end
