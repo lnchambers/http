@@ -20,7 +20,7 @@ class ParserTest < Minitest::Test
 
   def test_path_exists
     parser = Parser.new([
-      "GET /word_search?param= HTTP/1.1",
+      "GET /datetime HTTP/1.1",
       "Host: 127.0.0.1:9292",
       "Upgrade-Insecure-Requests: 1",
       "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
