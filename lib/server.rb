@@ -55,7 +55,6 @@ class Server
 
   def respond
     puts "Sending response."
-    "<pre>" + @request.join("\n") + "</pre>"
     diagnostics
   end
 
