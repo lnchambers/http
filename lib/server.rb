@@ -3,7 +3,7 @@ require "pry"
 require "./lib/parser"
 require "./lib/response"
 require "./lib/game"
-require "./lib/redirect"
+require "./lib/redirect" 
 
 class Server
   include Redirect

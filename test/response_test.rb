@@ -1,49 +1,49 @@
 require "./test/test_helper"
-require "./lib/path_respond"
+require "./lib/response"
 
 class ResponseTest < Minitest::Test
 
   def test_it_exists
-    path = PathRespond.new
+    response = Response.new
 
-    assert_instance_of PathRespond, path
+    assert_instance_of Response, response
   end
 
   def test_hello
-    path = PathRespond.new
+    response = Response.new
 
-    assert_equal "Hello World! (1)", path.hello
-    assert_equal "Hello World! (2)", path.hello
+    assert_equal "Hello World! (1)", response.hello
+    assert_equal "Hello World! (2)", response.hello
   end
 
   def test_datetime
-    path = PathRespond.new
+    response = Response.new
 
-    assert_equal "#{Time.now.strftime("%l:%M%p on %A, %B %-m, %Y")}", path.datetime
+    assert_equal "#{Time.now.strftime("%l:%M%p on %A, %B %-m, %Y")}", response.datetime
   end
 
   def test_shutdown
-    path = PathRespond.new
+    response = Response.new
 
-    assert_equal "Total requests: 3", path.shutdown(3)
+    assert_equal "Total requests: 3", response.shutdown(3)
   end
 
   def test_word_search_downcases_to_search_and_capitalizes_when_printing
-    path = PathRespond.new
+    response = Response.new
 
-    assert_equal "Power is known to the Galactic Senate.", path.word_search("PoWeR")
-    assert_equal "Yoda is unknown to the Jedi Council.", path.word_search("yoDA")
+    assert_equal "Power is known to the Galactic Senate.", response.word_search("PoWeR")
+    assert_equal "Yoda is unknown to the Jedi Council.", response.word_search("yoDA")
   end
 
   def test_status_codes
-    path = PathRespond.new
+    response = Response.new
 
-    assert_equal "301 Moved Permanently", path.status_code(301)
+    assert_equal "301 Moved Permanently", response.status_code(301)
   end
 
   def test_wrong_status_codes
-    path = PathRespond.new
+    response = Response.new
 
-    assert_equal "Bad Header", path.status_code(666)
+    assert_equal "Bad Header", response.status_code(666)
   end
 end
