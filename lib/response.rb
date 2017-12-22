@@ -1,4 +1,4 @@
-class PathRespond
+class Response
 
   attr_reader :header
 

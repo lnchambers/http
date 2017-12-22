@@ -1,49 +1,55 @@
 require "socket"
 require "pry"
-require_relative "parser"
-require_relative "path_respond"
-require_relative "game"
+require "./lib/parser"
+require "./lib/response"
+require "./lib/game"
+require "./lib/redirect"
 
 class Server
+  include Redirect
 
   attr_reader :post_data
 
   def initialize
     @output = ""
     @tcp_server = TCPServer.open(9292)
-    @path_respond = PathRespond.new
+    @response = Response.new
+    @post_data
     @request = []
-    start
-    @parser = Parser.new(@request)
     @game
   end
 
   def start
+    count = 0
     loop do
       puts "Ready for a request"
       @listener = @tcp_server.accept
-      increment
+      count += 1
+      @request = []
       while line = @listener.gets and !line.chomp.empty?
         @request << line.chomp
       end
-      post_data#(request)
+      @parser = Parser.new(@request)
+      content_length = @parser.content_length
+      @post_data = @listener.read(content_length.to_i)
+      @post_data = @post_data.split[-2]
 
-      puts "Got this request:"
+      puts "Got this @request:"
       puts @request.inspect
       direct(count)
     end
   end
 
 
-  def direct(request, count)
+  def direct(count)
     case @parser.path
-    when "/" then respond(request)
-    when "/hello" then get_hello(request)
-    when "/datetime" then get_datetime(request)
+    when "/" then respond
+    when "/hello" then get_hello
+    when "/datetime" then get_datetime
     when "/shutdown" then get_shutdown(count)
-    when "/word_search" then get_word_search(request)
-    when "/start_game" then get_start_game(request)
-    when "/game" then get_game_route(request)
+    when "/word_search" then get_word_search
+    when "/start_game" then get_start_game
+    when "/game" then get_game_route
     when "/force_error" then get_redirect_500
     else
       get_redirect_404
@@ -51,25 +57,25 @@ class Server
     render_view
   end
 
-  def respond(request)
+  def respond
     puts "Sending response."
-    "<pre>" + request.join("\n") + "</pre>"
+    "<pre>" + @request.join("\n") + "</pre>"
     diagnostics
   end
 
   def diagnostics
-    @output = @path_respond.diagnostic(@parser)
+    @output = @response.diagnostic(@parser)
   end
 
   def render_view
-    @listener.puts @path_respond.headers(@output, 200)
+    @listener.puts @response.headers(@output, 200)
     @listener.puts @output
-    puts ["Wrote this response:".header, @output].join("\n")
+    puts ["Wrote this response:", @response.header, @output].join("\n")
     @listener.close
     puts "\nResponse complete : Exiting."
   end
 
-  def game_play(request)
+  def game_play
     if @parser.path == "/start_game" && @parser.verb == "POST"
       "Good luck!"
     elsif @parser.path == "/game" && @parser.verb == "POST"
@@ -85,39 +91,9 @@ class Server
     end
   end
 
-  def get_redirect_301
-    @listener.puts @path_respond.headers(@output, 301)
-  end
-
-  def get_redirect_401
-    @listener.puts @path_respond.headers(@output, 401)
-  end
-
-  def get_redirect_403
-    @listener.puts @path_respond.headers(@output, 403)
-    @output = "YOU. SHALL. NOT. PASS!
-    403
-    Forbidden"
-    @listener.puts @output
-  end
-
-  def get_redirect_404
-    @listener.puts @path_respond.headers(@output, 404)
-    @output = "They've discovered our secret! Run away!
-    404
-    Page Not Found"
-    @listener.puts @output
-  end
-
-  def get_redirect_500
-    @listener.puts @path_respond.headers(@output, 500)
-    @output = @path_respond.system_error
-    close_server
-  end
-
-  def get_game_route(request)
+  def get_game_route
     if !@game.nil?
-      game_play(request)
+      game_play
     else
       @output = "You have to start a game using /start_game first."
     end
@@ -128,44 +104,41 @@ class Server
   end
 
   def get_shutdown(count)
-    @output = @path_respond.shutdown(count) + diagnostics
+    @output = @response.shutdown(count) + diagnostics
     render_view
     close_server
   end
 
-  def get_datetime(request)
-    @output = @path_respond.datetime + diagnostics
+  def get_datetime
+    @output = @response.datetime + diagnostics
   end
 
-  def get_hello(request)
-    @output = @path_respond.hello + diagnostics
+  def get_hello
+    @output = @response.hello + diagnostics
   end
 
-  def get_word_search(request)
+  def get_word_search
     params = @parser.params
-    @output = @path_respond.word_search(params) + diagnostics
+    @output = @response.word_search(params) + diagnostics
   end
 
-  def get_start_game(request)
+  def get_start_game
     if @parser.verb == "GET"
       @output = "Please put a post request in."
     elsif @game.nil?
       @game = Game.new
       get_redirect_301
-      @output = game_play(request) + diagnostics
+      @output = game_play + diagnostics
     else
       get_redirect_403
     end
   end
 
-  def post_data(request)
+  def post_data
+    @parser = Parser.new(@request)
     content_length = @parser.content_length
     @post_data = @listener.read(content_length.to_i)
     @post_data = post_data.split[-2]
-  end
-
-  def increment(count = 0)
-    count = count + 1
   end
 
 end
