@@ -40,4 +40,13 @@ class GameTest < Minitest::Test
 
     assert_includes game.check_guess, "Your guess is"
   end
+
+  def test_check_guess_returns_a_win
+    game = Game.new
+
+    game.post("26")
+    game.correct_number = 26
+
+    assert_equal "Congratulations! The number was 26", game.check_guess
+  end
 end

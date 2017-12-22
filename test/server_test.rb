@@ -5,7 +5,7 @@ class ServerTest < Minitest::Test
   def test_server_starts
     response = Faraday.get "http://127.0.0.1:9292"
 
-    expected = "" "<html><head></head><body><pre>
+    expected = "<html><head></head><body><pre>
       Verb: GET
       Path: /
       Protocol: HTTP/1.1

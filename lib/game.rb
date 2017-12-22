@@ -1,16 +1,16 @@
-require_relative "parser"
-require_relative "server"
+require "./lib/parser"
+require "./lib/server"
 
 class Game
 
-  attr_reader :guess,
-              :guess_count,
-              :correct_number
+  attr_reader   :guess,
+                :guess_count
+  attr_accessor :correct_number
 
   def initialize
     @guess = 0
     @guess_count = 0
-    @correct_number = rand(100)
+    @correct_number = rand(100) + 1
   end
 
   def get
